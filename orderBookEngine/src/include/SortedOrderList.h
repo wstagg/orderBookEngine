@@ -53,7 +53,12 @@ public:
         return false;
     }
 
-
+    obe::Order popBestOrder()
+    {
+        auto order = priceToOrdersMap.begin()->second.front();
+        removeOrder(order.id);
+        return order;
+    }
     // Insert an order DONE
     // Peek at the best price (top of the list) without removing it DONE
     // Remove an order by its id — this is the cancellation case DONE

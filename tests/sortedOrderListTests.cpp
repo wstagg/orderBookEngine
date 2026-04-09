@@ -94,3 +94,41 @@ TEST(SortedOrderListTests, removeOrderFail)
     EXPECT_EQ(success, false);
     EXPECT_EQ(askOrderbook.getSize(), 2); 
 }
+
+TEST(SortedOrderListTests, popBestAskOrder)
+{
+    SortedOrderList<std::less<obe::Price::Pence>> askOrderbook;
+    int64_t highPrice{100};
+    int64_t lowPrice{1};
+
+    obe::Order order1 {1, highPrice, 1};
+    obe::Order order2 {2, lowPrice, 1};
+    askOrderbook.insert(order1);
+    askOrderbook.insert(order2);
+    
+    auto order = askOrderbook.popBestOrder();
+
+    EXPECT_EQ(order.id, 2);
+    EXPECT_EQ(order.price.pence, lowPrice);
+    EXPECT_EQ(order.quantity, 1);
+    EXPECT_EQ(askOrderbook.getSize(), 1); 
+}
+
+TEST(SortedOrderListTests, popBestBidOrder)
+{
+    SortedOrderList<std::greater<obe::Price::Pence>> askOrderbook;
+    int64_t highPrice{100};
+    int64_t lowPrice{1};
+
+    obe::Order order1 {1, highPrice, 1};
+    obe::Order order2 {2, lowPrice, 1};
+    askOrderbook.insert(order1);
+    askOrderbook.insert(order2);
+    
+    auto order = askOrderbook.popBestOrder();
+
+    EXPECT_EQ(order.id, 1);
+    EXPECT_EQ(order.price.pence, highPrice);
+    EXPECT_EQ(order.quantity, 1);
+    EXPECT_EQ(askOrderbook.getSize(), 1); 
+}
