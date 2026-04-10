@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <queue>
 #include <algorithm>
+#include <cassert>
 
 #include "Order.h"
 
@@ -17,6 +18,7 @@ public:
         priceToOrdersMap[order.price.pence].push_back(order);
         idToPriceMap[order.id] = order.price.pence;
         ++totalOrders;
+        assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
     }
 
     const int getSize() const {return totalOrders;}
@@ -46,6 +48,7 @@ public:
                 idToPriceMap.erase(orderId);
                 // should orderPrice be removed from priceToOrdersMap if vector empty?
                 --totalOrders;
+                assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
                 return true;
             }
         }
@@ -57,6 +60,7 @@ public:
     {
         auto order = priceToOrdersMap.begin()->second.front();
         removeOrder(order.id);
+        assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
         return order;
     }
     // Insert an order DONE

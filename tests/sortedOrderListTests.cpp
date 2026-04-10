@@ -40,7 +40,7 @@ TEST(SortedOrderListTests, getBestPriceAsk)
     int64_t lowPrice{1};
 
     obe::Order order1 {1, highPrice, 1};
-    obe::Order order2 {1, lowPrice, 1};
+    obe::Order order2 {2, lowPrice, 1};
     askOrderbook.insert(order1);
     askOrderbook.insert(order2);
 
@@ -54,7 +54,7 @@ TEST(SortedOrderListTests, getBestPriceBid)
     int64_t lowPrice{1};
 
     obe::Order order1 {1, highPrice, 1};
-    obe::Order order2 {1, lowPrice, 1};
+    obe::Order order2 {2, lowPrice, 1};
     bidOrderbook.insert(order1);
     bidOrderbook.insert(order2);
 
