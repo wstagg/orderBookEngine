@@ -4,73 +4,95 @@
 #include <queue>
 #include <algorithm>
 #include <cassert>
+#include <optional>
 
 #include "Order.h"
-
-template<typename sortOrder>
-class SortedOrderList
+namespace obe
 {
-public:
-    SortedOrderList() = default;
-    
-    void insert(const obe::Order& order)
+    using BidComparator = std::greater<Price::Pence>;
+    using AskComparator = std::less<Price::Pence>;
+
+    template<typename sortOrder>
+    class SortedOrderList
     {
-        priceToOrdersMap[order.price.pence].push_back(order);
-        idToPriceMap[order.id] = order.price.pence;
-        ++totalOrders;
-        assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
-    }
-
-    const int getSize() const {return totalOrders;}
-    
-    const obe::Price::Pence getBestPrice() const
-    {
-        return priceToOrdersMap.begin()->first;
-    }
-    
-    bool removeOrder(const int32_t& orderId)
-    {
-        const auto orderPrice = idToPriceMap.find(orderId);
-
-        // no order id exists
-        if (orderPrice == idToPriceMap.end()) return false;
-
-        const auto orderQueue = priceToOrdersMap.find(orderPrice->second);
-
-        //price does not exist
-        if (orderQueue == priceToOrdersMap.end()) return false;
-
-        for (auto itt = orderQueue->second.begin(); itt != orderQueue->second.end(); )
+    public:
+        SortedOrderList() = default;
+        
+        void insert(const obe::Order& order)
         {
-            if(itt->id == orderId)
-            {
-                orderQueue->second.erase(itt);
-                idToPriceMap.erase(orderId);
-                // should orderPrice be removed from priceToOrdersMap if vector empty?
-                --totalOrders;
-                assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
-                return true;
-            }
+            priceToOrdersMap[order.price.pence].push_back(order);
+            idToPriceMap[order.id] = order.price.pence;
+            ++totalOrders;
+            assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
+        }
+
+        int64_t getSize() const 
+        {
+            return totalOrders;
         }
         
-        return false;
-    }
+        const std::optional<obe::Price::Pence> getBestPrice() const
+        {
+            if(priceToOrdersMap.empty())
+            {
+                return std::nullopt;
+            }
 
-    obe::Order popBestOrder()
-    {
-        auto order = priceToOrdersMap.begin()->second.front();
-        removeOrder(order.id);
-        assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
-        return order;
-    }
-    // Insert an order DONE
-    // Peek at the best price (top of the list) without removing it DONE
-    // Remove an order by its id — this is the cancellation case DONE
-    // Remove the best order — this is the fill case, when a trade happens
-    // Iterate in price order — the matching engine will need to walk the list
+            return priceToOrdersMap.begin()->first;
+        }
+        
+        bool removeOrder(const int64_t orderId)
+        {
+            const auto orderPrice = idToPriceMap.find(orderId);
 
-private:
-    std::map<int64_t, std::vector<obe::Order>, sortOrder> priceToOrdersMap; 
-    std::unordered_map<int32_t, int64_t> idToPriceMap; 
-    int64_t totalOrders{0};
-};
+            // no order id exists
+            if (orderPrice == idToPriceMap.end()) return false;
+
+            const auto orderQueue = priceToOrdersMap.find(orderPrice->second);
+
+            //price does not exist
+            if (orderQueue == priceToOrdersMap.end()) return false;
+
+            for (auto itt = orderQueue->second.begin(); itt != orderQueue->second.end(); )
+            {
+                if(itt->id == orderId)
+                {
+                    //erase the order from the queue
+                    orderQueue->second.erase(itt);
+                    
+                    //erase the ID from the idToPriceMap
+                    idToPriceMap.erase(orderId);
+                    
+                    // if the queue of orders at the price is now empty remove the price from priceToOrdersMap
+                    if (orderQueue->second.empty())
+                    {
+                        priceToOrdersMap.erase(orderPrice->second);
+                    }
+                    
+                    --totalOrders;
+                    assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        std::optional<obe::Order> popBestOrder()
+        {
+            if(priceToOrdersMap.empty())
+            {
+                return std::nullopt;
+            }
+            auto order = priceToOrdersMap.begin()->second.front();
+            removeOrder(order.id);
+            assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
+            return order;
+        }
+
+    private:
+        std::map<int64_t, std::vector<obe::Order>, sortOrder> priceToOrdersMap; 
+        std::unordered_map<int32_t, int64_t> idToPriceMap; 
+        int64_t totalOrders{0};
+    };
+}

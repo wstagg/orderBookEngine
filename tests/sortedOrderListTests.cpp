@@ -8,16 +8,16 @@ public:
     {
         for (int i = 0 ; i < 100 ; ++i)
         {
-            askOrderbook.insert({id, pricePence, quantity});
-            bidOrderbook.insert({id, pricePence, quantity});
+            askOrderbook.insert({id, obe::Price::fromPence(pricePence), quantity});
+            bidOrderbook.insert({id, obe::Price::fromPence(pricePence), quantity});
             ++id;
             ++pricePence;
             quantity;
         }
     }
 
-    SortedOrderList<std::less<obe::Price::Pence>> askOrderbook;
-    SortedOrderList<std::greater<obe::Price::Pence>> bidOrderbook;
+    obe::SortedOrderList<obe::AskComparator> askOrderbook;
+    obe::SortedOrderList<obe::BidComparator> bidOrderbook;
     const int TOTAL_ORDERS{100};
 
 private:
@@ -35,37 +35,45 @@ TEST_F(SortedOrderListFixture, OrderBookInsert)
 
 TEST(SortedOrderListTests, getBestPriceAsk)
 {
-    SortedOrderList<std::less<obe::Price::Pence>> askOrderbook;
-    int64_t highPrice{100};
-    int64_t lowPrice{1};
+    obe::SortedOrderList<obe::AskComparator> askOrderbook;
+    obe::Price highPrice = obe::Price::fromPence(100);
+    obe::Price lowPrice = obe::Price::fromPence(1);
 
     obe::Order order1 {1, highPrice, 1};
     obe::Order order2 {2, lowPrice, 1};
     askOrderbook.insert(order1);
     askOrderbook.insert(order2);
 
-    EXPECT_EQ(lowPrice, askOrderbook.getBestPrice());
+    EXPECT_EQ(lowPrice.pence, askOrderbook.getBestPrice());
 }
 
 TEST(SortedOrderListTests, getBestPriceBid)
 {
-    SortedOrderList<std::greater<obe::Price::Pence>> bidOrderbook;
-    int64_t highPrice{100};
-    int64_t lowPrice{1};
+    obe::SortedOrderList<obe::BidComparator> bidOrderbook;
+    obe::Price highPrice = obe::Price::fromPence(100);
+    obe::Price lowPrice = obe::Price::fromPence(1);
 
     obe::Order order1 {1, highPrice, 1};
     obe::Order order2 {2, lowPrice, 1};
     bidOrderbook.insert(order1);
     bidOrderbook.insert(order2);
 
-    EXPECT_EQ(highPrice, bidOrderbook.getBestPrice());
+    EXPECT_EQ(highPrice.pence, bidOrderbook.getBestPrice());
+}
+
+TEST(SortedOrderListTests, getBestPriceOnEmptySortedOrderList)
+{
+    obe::SortedOrderList<obe::BidComparator> bidOrderbook;
+    auto bestPrice = bidOrderbook.getBestPrice();
+
+    EXPECT_EQ(std::nullopt, bestPrice);
 }
 
 TEST(SortedOrderListTests, removeOrderSuccess)
 {
-    SortedOrderList<std::less<obe::Price::Pence>> askOrderbook;
-    int64_t highPrice{100};
-    int64_t lowPrice{1};
+    obe::SortedOrderList<obe::AskComparator> askOrderbook;
+    obe::Price highPrice = obe::Price::fromPence(100);
+    obe::Price lowPrice = obe::Price::fromPence(1);
 
     obe::Order order1 {1, highPrice, 1};
     obe::Order order2 {2, lowPrice, 1};
@@ -80,9 +88,9 @@ TEST(SortedOrderListTests, removeOrderSuccess)
 
 TEST(SortedOrderListTests, removeOrderFail)
 {
-    SortedOrderList<std::less<obe::Price::Pence>> askOrderbook;
-    int64_t highPrice{100};
-    int64_t lowPrice{1};
+    obe::SortedOrderList<obe::AskComparator> askOrderbook;
+    obe::Price highPrice = obe::Price::fromPence(100);
+    obe::Price lowPrice = obe::Price::fromPence(1);
 
     obe::Order order1 {1, highPrice, 1};
     obe::Order order2 {2, lowPrice, 1};
@@ -97,9 +105,9 @@ TEST(SortedOrderListTests, removeOrderFail)
 
 TEST(SortedOrderListTests, popBestAskOrder)
 {
-    SortedOrderList<std::less<obe::Price::Pence>> askOrderbook;
-    int64_t highPrice{100};
-    int64_t lowPrice{1};
+    obe::SortedOrderList<obe::AskComparator> askOrderbook;
+    obe::Price highPrice = obe::Price::fromPence(100);
+    obe::Price lowPrice = obe::Price::fromPence(1);
 
     obe::Order order1 {1, highPrice, 1};
     obe::Order order2 {2, lowPrice, 1};
@@ -108,27 +116,35 @@ TEST(SortedOrderListTests, popBestAskOrder)
     
     auto order = askOrderbook.popBestOrder();
 
-    EXPECT_EQ(order.id, 2);
-    EXPECT_EQ(order.price.pence, lowPrice);
-    EXPECT_EQ(order.quantity, 1);
+    EXPECT_EQ(order.value().id, 2);
+    EXPECT_EQ(order.value().price.pence, lowPrice.pence);
+    EXPECT_EQ(order.value().quantity, 1);
     EXPECT_EQ(askOrderbook.getSize(), 1); 
 }
 
 TEST(SortedOrderListTests, popBestBidOrder)
 {
-    SortedOrderList<std::greater<obe::Price::Pence>> askOrderbook;
-    int64_t highPrice{100};
-    int64_t lowPrice{1};
+    obe::SortedOrderList<obe::BidComparator> bidOrderbook;
+    obe::Price highPrice = obe::Price::fromPence(100);
+    obe::Price lowPrice = obe::Price::fromPence(1);
 
     obe::Order order1 {1, highPrice, 1};
     obe::Order order2 {2, lowPrice, 1};
-    askOrderbook.insert(order1);
-    askOrderbook.insert(order2);
+    bidOrderbook.insert(order1);
+    bidOrderbook.insert(order2);
     
+    auto order = bidOrderbook.popBestOrder();
+
+    EXPECT_EQ(order.value().id, 1);
+    EXPECT_EQ(order.value().price.pence, highPrice.pence);
+    EXPECT_EQ(order.value().quantity, 1);
+    EXPECT_EQ(bidOrderbook.getSize(), 1); 
+}
+
+TEST(SortedOrderListTests, popBestOrderOnEmptyOrderList)
+{
+    obe::SortedOrderList<obe::AskComparator> askOrderbook;
     auto order = askOrderbook.popBestOrder();
 
-    EXPECT_EQ(order.id, 1);
-    EXPECT_EQ(order.price.pence, highPrice);
-    EXPECT_EQ(order.quantity, 1);
-    EXPECT_EQ(askOrderbook.getSize(), 1); 
+    EXPECT_EQ(order, std::nullopt);
 }

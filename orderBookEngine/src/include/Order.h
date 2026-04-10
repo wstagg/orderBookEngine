@@ -4,27 +4,35 @@
 
 namespace obe
 {
-    struct Price
+    class Price
     {
+    public:
         using Pence = int64_t;
-        Price(int64_t _pence):
-        pence(_pence)
+        
+        static Price fromPence(Pence pence)
         {
+            Price p;
+            p.pence = pence;
+            return p;
         }
-
-        Price(double price)
+    
+        static Price fromPounds(double pounds)
         {
-            pence = static_cast<int64_t>(std::round(price * 100));
+            Price p;
+            p.pence = static_cast<Pence>(std::round(pounds * 1000));
+            return p;
         }
-
+        
         Pence pence;
+    private:
+
+        Price() = default;
     };
 
     struct Order
     {
-        int32_t id;
+        int64_t id;
         Price price;
         int32_t quantity;
-    };
-    
+    }; 
 }
