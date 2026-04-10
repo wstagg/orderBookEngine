@@ -41,7 +41,7 @@ namespace obe
             return priceToOrdersMap.begin()->first;
         }
         
-        bool removeOrder(const int64_t orderId)
+        bool remove(const int64_t orderId)
         {
             const auto orderPrice = idToPriceMap.find(orderId);
 
@@ -85,7 +85,7 @@ namespace obe
                 return std::nullopt;
             }
             auto order = priceToOrdersMap.begin()->second.front();
-            removeOrder(order.id);
+            remove(order.id);
             assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
             return order;
         }

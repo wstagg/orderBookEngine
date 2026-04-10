@@ -35,4 +35,6 @@ namespace obe
         Price price;
         int32_t quantity;
     }; 
+
+    enum class OrderType{ask, bid};
 }

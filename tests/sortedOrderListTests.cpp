@@ -80,7 +80,7 @@ TEST(SortedOrderListTests, removeOrderSuccess)
     askOrderbook.insert(order1);
     askOrderbook.insert(order2);
     
-    auto success = askOrderbook.removeOrder(1);
+    auto success = askOrderbook.remove(1);
 
     EXPECT_EQ(success, true);
     EXPECT_EQ(askOrderbook.getSize(), 1); 
@@ -97,7 +97,7 @@ TEST(SortedOrderListTests, removeOrderFail)
     askOrderbook.insert(order1);
     askOrderbook.insert(order2);
     
-    auto success = askOrderbook.removeOrder(3);
+    auto success = askOrderbook.remove(3);
 
     EXPECT_EQ(success, false);
     EXPECT_EQ(askOrderbook.getSize(), 2); 
@@ -106,7 +106,7 @@ TEST(SortedOrderListTests, removeOrderFail)
 TEST(SortedOrderListTests, removeOrderFromEmptyOrderList)
 {
     obe::SortedOrderList<obe::AskComparator> askOrderbook;
-    EXPECT_EQ(askOrderbook.removeOrder(1), false);
+    EXPECT_EQ(askOrderbook.remove(1), false);
 }
 
 TEST(SortedOrderListTests, popBestAskOrder)
@@ -193,7 +193,7 @@ TEST(SortedOrderListTests, getBestPriceAfterOrderRemoved)
     
     EXPECT_EQ(bidOrderbook.getBestPrice(), priceOne.pence);
 
-    ASSERT_TRUE(bidOrderbook.removeOrder(1));
+    ASSERT_TRUE(bidOrderbook.remove(1));
     
     EXPECT_EQ(bidOrderbook.getBestPrice(), priceTwo.pence);
 }
