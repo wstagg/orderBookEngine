@@ -31,14 +31,14 @@ namespace obe
             return totalOrders;
         }
         
-        const std::optional<obe::Price::Pence> getBestPrice() const
+        const std::optional<obe::Order> peekBestOrder() const
         {
             if(priceToOrdersMap.empty())
             {
                 return std::nullopt;
             }
 
-            return priceToOrdersMap.begin()->first;
+            return priceToOrdersMap.begin()->second.front();
         }
         
         bool remove(const int64_t orderId)

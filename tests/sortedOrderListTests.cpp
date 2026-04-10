@@ -33,21 +33,27 @@ TEST_F(SortedOrderListFixture, OrderBookInsert)
     EXPECT_EQ(SortedOrderListFixture::TOTAL_ORDERS, bidOrderbook.getSize());
 }
 
-TEST(SortedOrderListTests, getBestPriceAsk)
+TEST(SortedOrderListTests, peekBestOrderAsk)
 {
     obe::SortedOrderList<obe::AskComparator> askOrderbook;
     obe::Price highPrice = obe::Price::fromPence(100);
     obe::Price lowPrice = obe::Price::fromPence(1);
 
     obe::Order order1 {1, highPrice, 1};
-    obe::Order order2 {2, lowPrice, 1};
+    obe::Order order2 {2, lowPrice, 2};
     askOrderbook.insert(order1);
     askOrderbook.insert(order2);
 
-    EXPECT_EQ(lowPrice.pence, askOrderbook.getBestPrice());
+    auto order = askOrderbook.peekBestOrder();
+
+    ASSERT_TRUE(order.has_value());
+
+    EXPECT_EQ(lowPrice.pence, order.value().price.pence);
+    EXPECT_EQ(2, order.value().id);
+    EXPECT_EQ(2, order.value().quantity);
 }
 
-TEST(SortedOrderListTests, getBestPriceBid)
+TEST(SortedOrderListTests, peekBestOrderBid)
 {
     obe::SortedOrderList<obe::BidComparator> bidOrderbook;
     obe::Price highPrice = obe::Price::fromPence(100);
@@ -58,13 +64,19 @@ TEST(SortedOrderListTests, getBestPriceBid)
     bidOrderbook.insert(order1);
     bidOrderbook.insert(order2);
 
-    EXPECT_EQ(highPrice.pence, bidOrderbook.getBestPrice());
+    auto order = bidOrderbook.peekBestOrder();
+
+    ASSERT_TRUE(order.has_value());
+
+    EXPECT_EQ(highPrice.pence, order.value().price.pence);
+    EXPECT_EQ(1, order.value().id);
+    EXPECT_EQ(1, order.value().quantity);
 }
 
 TEST(SortedOrderListTests, getBestPriceOnEmptySortedOrderList)
 {
     obe::SortedOrderList<obe::BidComparator> bidOrderbook;
-    auto bestPrice = bidOrderbook.getBestPrice();
+    auto bestPrice = bidOrderbook.peekBestOrder();
 
     EXPECT_EQ(std::nullopt, bestPrice);
 }
@@ -190,10 +202,22 @@ TEST(SortedOrderListTests, getBestPriceAfterOrderRemoved)
     obe::Order order2 {2, priceTwo, 2};
     bidOrderbook.insert(order1);
     bidOrderbook.insert(order2);
+
+    auto orderOne = bidOrderbook.peekBestOrder();
     
-    EXPECT_EQ(bidOrderbook.getBestPrice(), priceOne.pence);
+    ASSERT_TRUE(orderOne.has_value());
+
+    EXPECT_EQ(priceOne.pence, orderOne.value().price.pence);
+    EXPECT_EQ(1, orderOne.value().id);
+    EXPECT_EQ(1, orderOne.value().quantity);
 
     ASSERT_TRUE(bidOrderbook.remove(1));
+
+    auto orderTwo = bidOrderbook.peekBestOrder();
     
-    EXPECT_EQ(bidOrderbook.getBestPrice(), priceTwo.pence);
+    ASSERT_TRUE(orderTwo.has_value());
+    
+    EXPECT_EQ(priceTwo.pence, orderTwo.value().price.pence);
+    EXPECT_EQ(2, orderTwo.value().id);
+    EXPECT_EQ(2, orderTwo.value().quantity);
 }
