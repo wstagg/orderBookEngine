@@ -221,3 +221,82 @@ TEST(SortedOrderListTests, getBestPriceAfterOrderRemoved)
     EXPECT_EQ(2, orderTwo.value().id);
     EXPECT_EQ(2, orderTwo.value().quantity);
 }
+
+TEST(SortedOrderListTests, modifyOrderQuantity)
+{
+    obe::SortedOrderList<obe::BidComparator> bidOrderbook;
+    obe::Price price = obe::Price::fromPence(100);
+
+    obe::Order order1 {1, price, 100};
+    bidOrderbook.insert(order1);
+
+    auto orderPeek = bidOrderbook.peekBestOrder();
+    ASSERT_TRUE(orderPeek.has_value());
+
+    EXPECT_EQ(orderPeek.value().quantity, 100);
+
+    EXPECT_EQ(bidOrderbook.modifyOrderQuantity(1, 99), true);
+
+    orderPeek = bidOrderbook.peekBestOrder();
+    ASSERT_TRUE(orderPeek.has_value());
+
+    EXPECT_EQ(orderPeek.value().quantity, 99);  
+}
+
+TEST(SortedOrderListTests, modifyOrderQuantityOrderQuantityHigherThanOriginal)
+{
+    obe::SortedOrderList<obe::BidComparator> bidOrderbook;
+    obe::Price price = obe::Price::fromPence(100);
+
+    obe::Order order1 {1, price, 100};
+    bidOrderbook.insert(order1);
+
+    auto orderPeek = bidOrderbook.peekBestOrder();
+    ASSERT_TRUE(orderPeek.has_value());
+
+    EXPECT_EQ(orderPeek.value().quantity, 100);
+
+    EXPECT_EQ(bidOrderbook.modifyOrderQuantity(1, 101), false);
+
+    orderPeek = bidOrderbook.peekBestOrder();
+    ASSERT_TRUE(orderPeek.has_value());
+
+    EXPECT_EQ(orderPeek.value().quantity, 100);  
+}
+
+TEST(SortedOrderListTests, modifyOrderQuantityInvalidOrderID)
+{
+    obe::SortedOrderList<obe::BidComparator> bidOrderbook;
+    obe::Price price = obe::Price::fromPence(100);
+
+    obe::Order order1 {1, price, 100};
+    bidOrderbook.insert(order1);
+
+    auto orderPeek = bidOrderbook.peekBestOrder();
+    ASSERT_TRUE(orderPeek.has_value());
+
+    EXPECT_EQ(orderPeek.value().quantity, 100);
+
+    EXPECT_EQ(bidOrderbook.modifyOrderQuantity(2, 99), false);
+
+    orderPeek = bidOrderbook.peekBestOrder();
+    ASSERT_TRUE(orderPeek.has_value());
+
+    EXPECT_EQ(orderPeek.value().quantity, 100); 
+}
+
+TEST(SortedOrderListTests, modifyOrderQuantityOrderQuantityEqual)
+{
+    obe::SortedOrderList<obe::BidComparator> bidOrderbook;
+    obe::Price price = obe::Price::fromPence(100);
+
+    obe::Order order1 {1, price, 100};
+    bidOrderbook.insert(order1);
+
+    auto orderPeek = bidOrderbook.peekBestOrder();
+    ASSERT_TRUE(orderPeek.has_value());
+
+    EXPECT_EQ(orderPeek.value().quantity, 100);
+
+    EXPECT_EQ(bidOrderbook.modifyOrderQuantity(1, 100), false);
+}

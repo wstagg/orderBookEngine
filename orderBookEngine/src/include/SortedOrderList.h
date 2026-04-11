@@ -90,6 +90,33 @@ namespace obe
             return order;
         }
 
+        bool modifyOrderQuantity(int64_t orderId, int32_t newQuantity)
+        {
+            const auto orderPrice = idToPriceMap.find(orderId);
+
+            // no order id exists
+            if (orderPrice == idToPriceMap.end()) return false;
+
+            const auto orderQueue = priceToOrdersMap.find(orderPrice->second);
+
+            //price does not exist
+            if (orderQueue == priceToOrdersMap.end()) return false;
+
+            for (auto itt = orderQueue->second.begin(); itt != orderQueue->second.end(); )
+            {
+                if(itt->id == orderId)
+                {
+                    if (newQuantity < itt->quantity)
+                    {
+                        itt->quantity = newQuantity;
+                        return true;
+                    }
+                    break;
+                }
+            }
+            return false;
+        }
+
     private:
         std::map<int64_t, std::vector<obe::Order>, sortOrder> priceToOrdersMap; 
         std::unordered_map<int32_t, int64_t> idToPriceMap; 
