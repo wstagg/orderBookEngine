@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "-std=c++2a -Wall -Wextra -Werror -Wpedantic")
 
 set(ORDERBOOK_SRC ${PROJECT_SOURCE_DIR}/src/cpp/*)
 
-#add_library(orderBookEngine STATIC 
-#${PROJECT_SOURCE_DIR}/src/cpp/SortedOrderList.cpp)
+add_library(orderBookEngine STATIC 
+${PROJECT_SOURCE_DIR}/src/cpp/MatchingEngine.cpp)
 
-#target_include_directories(orderBookEngine PRIVATE /src/include)
+target_include_directories(orderBookEngine PRIVATE ${PROJECT_SOURCE_DIR}/src/include)

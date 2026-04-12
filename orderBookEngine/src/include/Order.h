@@ -19,7 +19,7 @@ namespace obe
         static Price fromPounds(double pounds)
         {
             Price p;
-            p.pence = static_cast<Pence>(std::round(pounds * 1000));
+            p.pence = static_cast<Pence>(std::round(pounds * 100));
             return p;
         }
         

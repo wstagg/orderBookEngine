@@ -21,10 +21,12 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-add_executable(orderBookEngineTests ${PROJECT_SOURCE_DIR}/tests/sortedOrderListTests.cpp)
+add_executable(orderBookEngineTests 
+tests/SortedOrderListTests.cpp
+tests/MatchingEngineTests.cpp)
 
 target_include_directories(orderBookEngineTests PRIVATE ${PROJECT_SOURCE_DIR}/orderBookEngine/src/include)
-target_link_libraries(orderBookEngineTests GTest::gtest_main)
+target_link_libraries(orderBookEngineTests GTest::gtest_main orderBookEngine)
 
 include(GoogleTest)
 gtest_discover_tests(orderBookEngineTests)

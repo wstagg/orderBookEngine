@@ -9,11 +9,11 @@ namespace obe
     {
     public:
         MatchingEngine() = default;
-        std::vector<TradeEvent> submitOrder(const OrderType& orderType, const Order order);
+        std::vector<TradeEvent> submitOrder(const obe::OrderType& orderType, const obe::Order& order);
     private:
         
-        std::vector<TradeEvent> matchingLoop();
-        obe::SortedOrderList<obe::AskComparator> asks;
-        obe::SortedOrderList<obe::BidComparator> bids;
+        std::vector<obe::TradeEvent> matchingLoop();
+        obe::SortedOrderList<obe::AskComparator> asksList;
+        obe::SortedOrderList<obe::BidComparator> bidsList;
     }; 
 }

@@ -26,7 +26,7 @@ namespace obe
             assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
         }
 
-        int64_t getSize() const 
+        int64_t size() const 
         {
             return totalOrders;
         }
@@ -120,6 +120,6 @@ namespace obe
     private:
         std::map<int64_t, std::vector<obe::Order>, sortOrder> priceToOrdersMap; 
         std::unordered_map<int32_t, int64_t> idToPriceMap; 
-        int64_t totalOrders{0};
+        uint64_t totalOrders{0};
     };
 }

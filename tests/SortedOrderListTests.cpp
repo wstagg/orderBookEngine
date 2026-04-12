@@ -29,8 +29,8 @@ private:
 
 TEST_F(SortedOrderListFixture, OrderBookInsert)
 {
-    EXPECT_EQ(SortedOrderListFixture::TOTAL_ORDERS, askOrderbook.getSize());
-    EXPECT_EQ(SortedOrderListFixture::TOTAL_ORDERS, bidOrderbook.getSize());
+    EXPECT_EQ(SortedOrderListFixture::TOTAL_ORDERS, askOrderbook.size());
+    EXPECT_EQ(SortedOrderListFixture::TOTAL_ORDERS, bidOrderbook.size());
 }
 
 TEST(SortedOrderListTests, peekBestOrderAsk)
@@ -95,7 +95,7 @@ TEST(SortedOrderListTests, removeOrderSuccess)
     auto success = askOrderbook.remove(1);
 
     EXPECT_EQ(success, true);
-    EXPECT_EQ(askOrderbook.getSize(), 1); 
+    EXPECT_EQ(askOrderbook.size(), 1); 
 }
 
 TEST(SortedOrderListTests, removeOrderFail)
@@ -112,7 +112,7 @@ TEST(SortedOrderListTests, removeOrderFail)
     auto success = askOrderbook.remove(3);
 
     EXPECT_EQ(success, false);
-    EXPECT_EQ(askOrderbook.getSize(), 2); 
+    EXPECT_EQ(askOrderbook.size(), 2); 
 }
 
 TEST(SortedOrderListTests, removeOrderFromEmptyOrderList)
@@ -137,7 +137,7 @@ TEST(SortedOrderListTests, popBestAskOrder)
     EXPECT_EQ(order.value().id, 2);
     EXPECT_EQ(order.value().price.pence, lowPrice.pence);
     EXPECT_EQ(order.value().quantity, 1);
-    EXPECT_EQ(askOrderbook.getSize(), 1); 
+    EXPECT_EQ(askOrderbook.size(), 1); 
 }
 
 TEST(SortedOrderListTests, popBestBidOrder)
@@ -156,7 +156,7 @@ TEST(SortedOrderListTests, popBestBidOrder)
     EXPECT_EQ(order.value().id, 1);
     EXPECT_EQ(order.value().price.pence, highPrice.pence);
     EXPECT_EQ(order.value().quantity, 1);
-    EXPECT_EQ(bidOrderbook.getSize(), 1); 
+    EXPECT_EQ(bidOrderbook.size(), 1); 
 }
 
 TEST(SortedOrderListTests, popBestOrderOnEmptyOrderList)
@@ -182,14 +182,14 @@ TEST(SortedOrderListTests, popBestOrderFromDuplicatePriceOrders)
     EXPECT_EQ(orderOne.value().id, 1);
     EXPECT_EQ(orderOne.value().price.pence, price.pence);
     EXPECT_EQ(orderOne.value().quantity, 1);
-    EXPECT_EQ(bidOrderbook.getSize(), 1); 
+    EXPECT_EQ(bidOrderbook.size(), 1); 
 
     auto orderTwo = bidOrderbook.popBestOrder();
 
     EXPECT_EQ(orderTwo.value().id, 2);
     EXPECT_EQ(orderTwo.value().price.pence, price.pence);
     EXPECT_EQ(orderTwo.value().quantity, 2);
-    EXPECT_EQ(bidOrderbook.getSize(), 0); 
+    EXPECT_EQ(bidOrderbook.size(), 0); 
 }
 
 TEST(SortedOrderListTests, getBestPriceAfterOrderRemoved)
