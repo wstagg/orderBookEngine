@@ -222,7 +222,7 @@ TEST(SortedOrderListTests, getBestPriceAfterOrderRemoved)
     EXPECT_EQ(2, orderTwo.value().quantity);
 }
 
-TEST(SortedOrderListTests, modifyOrderQuantity)
+TEST(SortedOrderListTests, reduceOrderQuantity)
 {
     obe::SortedOrderList<obe::BidComparator> bidOrderbook;
     obe::Price price = obe::Price::fromPence(100);
@@ -235,7 +235,7 @@ TEST(SortedOrderListTests, modifyOrderQuantity)
 
     EXPECT_EQ(orderPeek.value().quantity, 100);
 
-    EXPECT_EQ(bidOrderbook.modifyOrderQuantity(1, 99), true);
+    EXPECT_EQ(bidOrderbook.reduceOrderQuantity(1, 99), true);
 
     orderPeek = bidOrderbook.peekBestOrder();
     ASSERT_TRUE(orderPeek.has_value());
@@ -243,7 +243,7 @@ TEST(SortedOrderListTests, modifyOrderQuantity)
     EXPECT_EQ(orderPeek.value().quantity, 99);  
 }
 
-TEST(SortedOrderListTests, modifyOrderQuantityOrderQuantityHigherThanOriginal)
+TEST(SortedOrderListTests,reduceOrderQuantityOrderQuantityHigherThanOriginal)
 {
     obe::SortedOrderList<obe::BidComparator> bidOrderbook;
     obe::Price price = obe::Price::fromPence(100);
@@ -256,7 +256,7 @@ TEST(SortedOrderListTests, modifyOrderQuantityOrderQuantityHigherThanOriginal)
 
     EXPECT_EQ(orderPeek.value().quantity, 100);
 
-    EXPECT_EQ(bidOrderbook.modifyOrderQuantity(1, 101), false);
+    EXPECT_EQ(bidOrderbook.reduceOrderQuantity(1, 101), false);
 
     orderPeek = bidOrderbook.peekBestOrder();
     ASSERT_TRUE(orderPeek.has_value());
@@ -264,7 +264,7 @@ TEST(SortedOrderListTests, modifyOrderQuantityOrderQuantityHigherThanOriginal)
     EXPECT_EQ(orderPeek.value().quantity, 100);  
 }
 
-TEST(SortedOrderListTests, modifyOrderQuantityInvalidOrderID)
+TEST(SortedOrderListTests, reduceOrderQuantityInvalidOrderID)
 {
     obe::SortedOrderList<obe::BidComparator> bidOrderbook;
     obe::Price price = obe::Price::fromPence(100);
@@ -277,7 +277,7 @@ TEST(SortedOrderListTests, modifyOrderQuantityInvalidOrderID)
 
     EXPECT_EQ(orderPeek.value().quantity, 100);
 
-    EXPECT_EQ(bidOrderbook.modifyOrderQuantity(2, 99), false);
+    EXPECT_EQ(bidOrderbook.reduceOrderQuantity(2, 99), false);
 
     orderPeek = bidOrderbook.peekBestOrder();
     ASSERT_TRUE(orderPeek.has_value());
@@ -285,7 +285,7 @@ TEST(SortedOrderListTests, modifyOrderQuantityInvalidOrderID)
     EXPECT_EQ(orderPeek.value().quantity, 100); 
 }
 
-TEST(SortedOrderListTests, modifyOrderQuantityOrderQuantityEqual)
+TEST(SortedOrderListTests, reduceOrderQuantityOrderQuantityEqual)
 {
     obe::SortedOrderList<obe::BidComparator> bidOrderbook;
     obe::Price price = obe::Price::fromPence(100);
@@ -298,5 +298,5 @@ TEST(SortedOrderListTests, modifyOrderQuantityOrderQuantityEqual)
 
     EXPECT_EQ(orderPeek.value().quantity, 100);
 
-    EXPECT_EQ(bidOrderbook.modifyOrderQuantity(1, 100), false);
+    EXPECT_EQ(bidOrderbook.reduceOrderQuantity(1, 100), false);
 }

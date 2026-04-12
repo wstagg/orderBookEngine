@@ -90,7 +90,7 @@ namespace obe
             return order;
         }
 
-        bool modifyOrderQuantity(int64_t orderId, int32_t newQuantity)
+        bool reduceOrderQuantity(int64_t orderId, int32_t newQuantity)
         {
             const auto orderPrice = idToPriceMap.find(orderId);
 
