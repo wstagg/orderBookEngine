@@ -41,7 +41,7 @@ namespace obe
             return priceToOrdersMap.begin()->second.front();
         }
         
-        bool remove(const int64_t orderId)
+        bool remove(const uint64_t orderId)
         {
             const auto orderPrice = idToPriceMap.find(orderId);
 
@@ -90,7 +90,7 @@ namespace obe
             return order;
         }
 
-        bool reduceOrderQuantity(int64_t orderId, int32_t newQuantity)
+        bool reduceOrderQuantity(uint64_t orderId, int32_t newQuantity)
         {
             const auto orderPrice = idToPriceMap.find(orderId);
 
@@ -118,8 +118,8 @@ namespace obe
         }
 
     private:
-        std::map<int64_t, std::vector<obe::Order>, sortOrder> priceToOrdersMap; 
-        std::unordered_map<int32_t, int64_t> idToPriceMap; 
+        std::map<uint64_t, std::vector<obe::Order>, sortOrder> priceToOrdersMap; 
+        std::unordered_map<uint64_t, int64_t> idToPriceMap; 
         uint64_t totalOrders{0};
     };
 }

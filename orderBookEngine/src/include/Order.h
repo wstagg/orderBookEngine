@@ -1,13 +1,14 @@
 #pragma once
 #include <cstdint>
 #include <cmath>
+#include <atomic>
 
 namespace obe
 {
     class Price
     {
     public:
-        using Pence = int64_t;
+        using Pence = uint64_t;
         
         static Price fromPence(Pence pence)
         {
@@ -29,11 +30,23 @@ namespace obe
         Price() = default;
     };
 
-    struct Order
+    class Order
     {
-        int64_t id;
+    public:
+        uint64_t id;
         Price price;
         int32_t quantity;
+
+        Order(const Price& _price, int32_t _quantity):
+        price(_price),
+        quantity(_quantity)        
+        {
+            static std::atomic<uint64_t> _id{0};
+            id = ++_id;
+        }
+    private:
+        Order() = default;
+        
     }; 
 
     enum class OrderType{ask, bid};

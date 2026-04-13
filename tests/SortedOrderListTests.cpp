@@ -1,36 +1,19 @@
 #include <gtest/gtest.h>
 #include "SortedOrderList.h"
 
-class SortedOrderListFixture : public testing::Test
+TEST(SortedOrderListTests, OrderBookInsert)
 {
-public:
-    SortedOrderListFixture()
-    {
-        for (int i = 0 ; i < 100 ; ++i)
-        {
-            askOrderbook.insert({id, obe::Price::fromPence(pricePence), quantity});
-            bidOrderbook.insert({id, obe::Price::fromPence(pricePence), quantity});
-            ++id;
-            ++pricePence;
-            quantity;
-        }
-    }
-
     obe::SortedOrderList<obe::AskComparator> askOrderbook;
     obe::SortedOrderList<obe::BidComparator> bidOrderbook;
-    const int TOTAL_ORDERS{100};
 
-private:
+    for (int i = 1; i <= 100; ++i )
+    {
+        askOrderbook.insert(obe::Order(obe::Price::fromPence(i), i));
+        bidOrderbook.insert(obe::Order(obe::Price::fromPence(i), i));
+    }
 
-    int32_t id{1};
-    int64_t pricePence{1};
-    int32_t quantity{1};
-};
-
-TEST_F(SortedOrderListFixture, OrderBookInsert)
-{
-    EXPECT_EQ(SortedOrderListFixture::TOTAL_ORDERS, askOrderbook.size());
-    EXPECT_EQ(SortedOrderListFixture::TOTAL_ORDERS, bidOrderbook.size());
+    EXPECT_EQ(100, askOrderbook.size());
+    EXPECT_EQ(100, bidOrderbook.size());
 }
 
 TEST(SortedOrderListTests, peekBestOrderAsk)
@@ -39,8 +22,8 @@ TEST(SortedOrderListTests, peekBestOrderAsk)
     obe::Price highPrice = obe::Price::fromPence(100);
     obe::Price lowPrice = obe::Price::fromPence(1);
 
-    obe::Order order1 {1, highPrice, 1};
-    obe::Order order2 {2, lowPrice, 2};
+    obe::Order order1 {highPrice, 1};
+    obe::Order order2 {lowPrice, 2};
     askOrderbook.insert(order1);
     askOrderbook.insert(order2);
 
@@ -49,7 +32,7 @@ TEST(SortedOrderListTests, peekBestOrderAsk)
     ASSERT_TRUE(order.has_value());
 
     EXPECT_EQ(lowPrice.pence, order.value().price.pence);
-    EXPECT_EQ(2, order.value().id);
+    EXPECT_EQ(order2.id, order.value().id);
     EXPECT_EQ(2, order.value().quantity);
 }
 
@@ -59,8 +42,8 @@ TEST(SortedOrderListTests, peekBestOrderBid)
     obe::Price highPrice = obe::Price::fromPence(100);
     obe::Price lowPrice = obe::Price::fromPence(1);
 
-    obe::Order order1 {1, highPrice, 1};
-    obe::Order order2 {2, lowPrice, 1};
+    obe::Order order1 {highPrice, 1};
+    obe::Order order2 {lowPrice, 1};
     bidOrderbook.insert(order1);
     bidOrderbook.insert(order2);
 
@@ -69,7 +52,7 @@ TEST(SortedOrderListTests, peekBestOrderBid)
     ASSERT_TRUE(order.has_value());
 
     EXPECT_EQ(highPrice.pence, order.value().price.pence);
-    EXPECT_EQ(1, order.value().id);
+    EXPECT_EQ(order1.id, order.value().id);
     EXPECT_EQ(1, order.value().quantity);
 }
 
@@ -87,12 +70,12 @@ TEST(SortedOrderListTests, removeOrderSuccess)
     obe::Price highPrice = obe::Price::fromPence(100);
     obe::Price lowPrice = obe::Price::fromPence(1);
 
-    obe::Order order1 {1, highPrice, 1};
-    obe::Order order2 {2, lowPrice, 1};
+    obe::Order order1 {highPrice, 1};
+    obe::Order order2 {lowPrice, 1};
     askOrderbook.insert(order1);
     askOrderbook.insert(order2);
     
-    auto success = askOrderbook.remove(1);
+    auto success = askOrderbook.remove(order1.id);
 
     EXPECT_EQ(success, true);
     EXPECT_EQ(askOrderbook.size(), 1); 
@@ -104,8 +87,8 @@ TEST(SortedOrderListTests, removeOrderFail)
     obe::Price highPrice = obe::Price::fromPence(100);
     obe::Price lowPrice = obe::Price::fromPence(1);
 
-    obe::Order order1 {1, highPrice, 1};
-    obe::Order order2 {2, lowPrice, 1};
+    obe::Order order1 {highPrice, 1};
+    obe::Order order2 {lowPrice, 1};
     askOrderbook.insert(order1);
     askOrderbook.insert(order2);
     
@@ -127,14 +110,14 @@ TEST(SortedOrderListTests, popBestAskOrder)
     obe::Price highPrice = obe::Price::fromPence(100);
     obe::Price lowPrice = obe::Price::fromPence(1);
 
-    obe::Order order1 {1, highPrice, 1};
-    obe::Order order2 {2, lowPrice, 1};
+    obe::Order order1 {highPrice, 1};
+    obe::Order order2 {lowPrice, 1};
     askOrderbook.insert(order1);
     askOrderbook.insert(order2);
     
     auto order = askOrderbook.popBestOrder();
 
-    EXPECT_EQ(order.value().id, 2);
+    EXPECT_EQ(order.value().id, order2.id);
     EXPECT_EQ(order.value().price.pence, lowPrice.pence);
     EXPECT_EQ(order.value().quantity, 1);
     EXPECT_EQ(askOrderbook.size(), 1); 
@@ -146,14 +129,14 @@ TEST(SortedOrderListTests, popBestBidOrder)
     obe::Price highPrice = obe::Price::fromPence(100);
     obe::Price lowPrice = obe::Price::fromPence(1);
 
-    obe::Order order1 {1, highPrice, 1};
-    obe::Order order2 {2, lowPrice, 1};
+    obe::Order order1 {highPrice, 1};
+    obe::Order order2 {lowPrice, 1};
     bidOrderbook.insert(order1);
     bidOrderbook.insert(order2);
     
     auto order = bidOrderbook.popBestOrder();
 
-    EXPECT_EQ(order.value().id, 1);
+    EXPECT_EQ(order.value().id, order1.id);
     EXPECT_EQ(order.value().price.pence, highPrice.pence);
     EXPECT_EQ(order.value().quantity, 1);
     EXPECT_EQ(bidOrderbook.size(), 1); 
@@ -172,21 +155,21 @@ TEST(SortedOrderListTests, popBestOrderFromDuplicatePriceOrders)
     obe::SortedOrderList<obe::BidComparator> bidOrderbook;
     obe::Price price = obe::Price::fromPence(100);
 
-    obe::Order order1 {1, price, 1};
-    obe::Order order2 {2, price, 2};
+    obe::Order order1 {price, 1};
+    obe::Order order2 {price, 2};
     bidOrderbook.insert(order1);
     bidOrderbook.insert(order2);
     
     auto orderOne = bidOrderbook.popBestOrder();
 
-    EXPECT_EQ(orderOne.value().id, 1);
+    EXPECT_EQ(orderOne.value().id, order1.id);
     EXPECT_EQ(orderOne.value().price.pence, price.pence);
     EXPECT_EQ(orderOne.value().quantity, 1);
     EXPECT_EQ(bidOrderbook.size(), 1); 
 
     auto orderTwo = bidOrderbook.popBestOrder();
 
-    EXPECT_EQ(orderTwo.value().id, 2);
+    EXPECT_EQ(orderTwo.value().id, order2.id);
     EXPECT_EQ(orderTwo.value().price.pence, price.pence);
     EXPECT_EQ(orderTwo.value().quantity, 2);
     EXPECT_EQ(bidOrderbook.size(), 0); 
@@ -198,8 +181,8 @@ TEST(SortedOrderListTests, getBestPriceAfterOrderRemoved)
     obe::Price priceOne = obe::Price::fromPence(100);
     obe::Price priceTwo = obe::Price::fromPence(99);
 
-    obe::Order order1 {1, priceOne, 1};
-    obe::Order order2 {2, priceTwo, 2};
+    obe::Order order1 {priceOne, 1};
+    obe::Order order2 {priceTwo, 2};
     bidOrderbook.insert(order1);
     bidOrderbook.insert(order2);
 
@@ -208,17 +191,17 @@ TEST(SortedOrderListTests, getBestPriceAfterOrderRemoved)
     ASSERT_TRUE(orderOne.has_value());
 
     EXPECT_EQ(priceOne.pence, orderOne.value().price.pence);
-    EXPECT_EQ(1, orderOne.value().id);
+    EXPECT_EQ(order1.id, orderOne.value().id);
     EXPECT_EQ(1, orderOne.value().quantity);
 
-    ASSERT_TRUE(bidOrderbook.remove(1));
+    ASSERT_TRUE(bidOrderbook.remove(order1.id));
 
     auto orderTwo = bidOrderbook.peekBestOrder();
     
     ASSERT_TRUE(orderTwo.has_value());
     
     EXPECT_EQ(priceTwo.pence, orderTwo.value().price.pence);
-    EXPECT_EQ(2, orderTwo.value().id);
+    EXPECT_EQ(order2.id, orderTwo.value().id);
     EXPECT_EQ(2, orderTwo.value().quantity);
 }
 
@@ -227,7 +210,7 @@ TEST(SortedOrderListTests, reduceOrderQuantity)
     obe::SortedOrderList<obe::BidComparator> bidOrderbook;
     obe::Price price = obe::Price::fromPence(100);
 
-    obe::Order order1 {1, price, 100};
+    obe::Order order1 {price, 100};
     bidOrderbook.insert(order1);
 
     auto orderPeek = bidOrderbook.peekBestOrder();
@@ -235,7 +218,7 @@ TEST(SortedOrderListTests, reduceOrderQuantity)
 
     EXPECT_EQ(orderPeek.value().quantity, 100);
 
-    EXPECT_EQ(bidOrderbook.reduceOrderQuantity(1, 99), true);
+    EXPECT_EQ(bidOrderbook.reduceOrderQuantity(order1.id, 99), true);
 
     orderPeek = bidOrderbook.peekBestOrder();
     ASSERT_TRUE(orderPeek.has_value());
@@ -248,7 +231,7 @@ TEST(SortedOrderListTests,reduceOrderQuantityOrderQuantityHigherThanOriginal)
     obe::SortedOrderList<obe::BidComparator> bidOrderbook;
     obe::Price price = obe::Price::fromPence(100);
 
-    obe::Order order1 {1, price, 100};
+    obe::Order order1 {price, 100};
     bidOrderbook.insert(order1);
 
     auto orderPeek = bidOrderbook.peekBestOrder();
@@ -269,7 +252,7 @@ TEST(SortedOrderListTests, reduceOrderQuantityInvalidOrderID)
     obe::SortedOrderList<obe::BidComparator> bidOrderbook;
     obe::Price price = obe::Price::fromPence(100);
 
-    obe::Order order1 {1, price, 100};
+    obe::Order order1 {price, 100};
     bidOrderbook.insert(order1);
 
     auto orderPeek = bidOrderbook.peekBestOrder();
@@ -290,7 +273,7 @@ TEST(SortedOrderListTests, reduceOrderQuantityOrderQuantityEqual)
     obe::SortedOrderList<obe::BidComparator> bidOrderbook;
     obe::Price price = obe::Price::fromPence(100);
 
-    obe::Order order1 {1, price, 100};
+    obe::Order order1 {price, 100};
     bidOrderbook.insert(order1);
 
     auto orderPeek = bidOrderbook.peekBestOrder();
