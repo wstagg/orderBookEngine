@@ -24,7 +24,8 @@ enable_testing()
 add_executable(orderBookEngineTests 
 tests/SortedOrderListTests.cpp
 tests/MatchingEngineTests.cpp
-tests/OrderTests.cpp)
+tests/OrderTests.cpp
+tests/MemoryPoolTests.cpp)
 
 target_include_directories(orderBookEngineTests PRIVATE ${PROJECT_SOURCE_DIR}/orderBookEngine/src/include)
 target_link_libraries(orderBookEngineTests GTest::gtest_main orderBookEngine)
