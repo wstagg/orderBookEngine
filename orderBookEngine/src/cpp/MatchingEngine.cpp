@@ -2,13 +2,18 @@
 
 std::vector<obe::TradeEvent> obe::MatchingEngine::submitOrder(const obe::OrderType &orderType, const obe::Order& order)
 {
+    auto pOrder = memoryPool.allocate(std::move(order));
+
+    // if no more space in the memoryPool return empty vector
+    if (!pOrder) return {};
+    
     switch (orderType)
     {
     case OrderType::ask:
-        asksList.insert(order);
+        asksList.insert(pOrder);
         break;
     case OrderType::bid:
-        bidsList.insert(order);
+        bidsList.insert(pOrder);
         break;
     default:
         break;
@@ -23,34 +28,36 @@ std::vector<obe::TradeEvent> obe::MatchingEngine::matchingLoop()
     
     // make sure both lists are not empty
     
-    while ( asksList.peekBestOrder().has_value() 
-            && bidsList.peekBestOrder().has_value()
-            && (asksList.peekBestOrder().value().price.pence <= bidsList.peekBestOrder().value().price.pence))
+    while ( asksList.peekBestOrder() != nullptr
+            && bidsList.peekBestOrder() != nullptr
+            && (asksList.peekBestOrder()->price.pence <= bidsList.peekBestOrder()->price.pence))
     {
-        if (asksList.peekBestOrder().value().quantity == bidsList.peekBestOrder().value().quantity)
+        if (asksList.peekBestOrder()->quantity == bidsList.peekBestOrder()->quantity)
         {
             auto bid = bidsList.popBestOrder();
             auto ask = asksList.popBestOrder();
 
-            tradeEvents.emplace_back(bid.value().id, ask.value().id, ask.value().price, ask.value().quantity);
+            tradeEvents.emplace_back(bid->id, ask->id, ask->price, ask->quantity);
+            memoryPool.deallocate(bid);
+            memoryPool.deallocate(ask);
         }
 
-        else if (asksList.peekBestOrder().value().quantity > bidsList.peekBestOrder().value().quantity)
+        else if (asksList.peekBestOrder()->quantity > bidsList.peekBestOrder()->quantity)
         {
             auto bid = bidsList.popBestOrder();
-            
-            tradeEvents.emplace_back(bid.value().id, asksList.peekBestOrder().value().id, asksList.peekBestOrder().value().price, bid.value().quantity);
-            
-            asksList.reduceOrderQuantity(asksList.peekBestOrder().value().id, (asksList.peekBestOrder().value().quantity - bid.value().quantity));
+
+            tradeEvents.emplace_back(bid->id, asksList.peekBestOrder()->id, asksList.peekBestOrder()->price, bid->quantity);
+            asksList.reduceOrderQuantity(asksList.peekBestOrder()->id, (asksList.peekBestOrder()->quantity - bid->quantity));
+            memoryPool.deallocate(bid);
         }
 
-        else if (asksList.peekBestOrder().value().quantity < bidsList.peekBestOrder().value().quantity)
+        else if (asksList.peekBestOrder()->quantity < bidsList.peekBestOrder()->quantity)
         {
             auto ask = asksList.popBestOrder();
             
-            tradeEvents.emplace_back(bidsList.peekBestOrder().value().id, ask.value().id, ask.value().price, ask.value().quantity);
-            
-            bidsList.reduceOrderQuantity(bidsList.peekBestOrder().value().id, (bidsList.peekBestOrder().value().quantity - ask.value().quantity));
+            tradeEvents.emplace_back(bidsList.peekBestOrder()->id, ask->id, ask->price, ask->quantity);
+            bidsList.reduceOrderQuantity(bidsList.peekBestOrder()->id, (bidsList.peekBestOrder()->quantity - ask->quantity));
+            memoryPool.deallocate(ask);
         }
     }   
     

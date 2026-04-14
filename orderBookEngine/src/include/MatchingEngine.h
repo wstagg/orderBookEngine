@@ -2,6 +2,7 @@
 #include <vector>
 #include "SortedOrderList.h"
 #include "TradeEvent.h"
+#include "MemoryPool.h"
 
 namespace obe
 {
@@ -15,5 +16,8 @@ namespace obe
         std::vector<obe::TradeEvent> matchingLoop();
         obe::SortedOrderList<obe::AskComparator> asksList;
         obe::SortedOrderList<obe::BidComparator> bidsList;
+        
+        const static std::size_t POOL_SIZE{10000};
+        obe::MemoryPool<obe::Order, POOL_SIZE> memoryPool;
     }; 
 }

@@ -18,10 +18,10 @@ namespace obe
     public:
         SortedOrderList() = default;
         
-        void insert(const obe::Order& order)
+        void insert(obe::Order* order)
         {
-            priceToOrdersMap[order.price.pence].push_back(order);
-            idToPriceMap[order.id] = order.price.pence;
+            priceToOrdersMap[order->price.pence].push_back(order);
+            idToPriceMap[order->id] = order->price.pence;
             ++totalOrders;
             assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
         }
@@ -31,11 +31,11 @@ namespace obe
             return totalOrders;
         }
         
-        const std::optional<obe::Order> peekBestOrder() const
+        obe::Order* peekBestOrder() const
         {
-            if(priceToOrdersMap.empty())
+            if (priceToOrdersMap.empty())
             {
-                return std::nullopt;
+                return nullptr;
             }
 
             return priceToOrdersMap.begin()->second.front();
@@ -55,7 +55,7 @@ namespace obe
 
             for (auto itt = orderQueue->second.begin(); itt != orderQueue->second.end(); )
             {
-                if(itt->id == orderId)
+                if((*itt)->id == orderId)
                 {
                     //erase the order from the queue
                     orderQueue->second.erase(itt);
@@ -73,19 +73,21 @@ namespace obe
                     assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
                     return true;
                 }
+                ++itt;
             }
             
             return false;
         }
 
-        std::optional<obe::Order> popBestOrder()
+        obe::Order* popBestOrder()
         {
-            if(priceToOrdersMap.empty())
+            if (priceToOrdersMap.empty())
             {
-                return std::nullopt;
+                return nullptr;
             }
+
             auto order = priceToOrdersMap.begin()->second.front();
-            remove(order.id);
+            remove(order->id);
             assert((totalOrders == idToPriceMap.size()) && "totalOrders and idToPriceMap.size() not equal");
             return order;
         }
@@ -104,21 +106,22 @@ namespace obe
 
             for (auto itt = orderQueue->second.begin(); itt != orderQueue->second.end(); )
             {
-                if(itt->id == orderId)
+                if((*itt)->id == orderId)
                 {
-                    if (newQuantity < itt->quantity)
+                    if (newQuantity < (*itt)->quantity)
                     {
-                        itt->quantity = newQuantity;
+                        (*itt)->quantity = newQuantity;
                         return true;
                     }
                     break;
                 }
+                ++itt;
             }
             return false;
         }
 
     private:
-        std::map<uint64_t, std::vector<obe::Order>, sortOrder> priceToOrdersMap; 
+        std::map<uint64_t, std::vector<obe::Order*>, sortOrder> priceToOrdersMap; 
         std::unordered_map<uint64_t, int64_t> idToPriceMap; 
         uint64_t totalOrders{0};
     };
