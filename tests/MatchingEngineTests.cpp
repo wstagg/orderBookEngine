@@ -78,7 +78,7 @@ TEST(MatchingEngineTests, askPriceLessQuantityEqual)
     EXPECT_EQ(trades2.front().askId, ask.id);
     EXPECT_EQ(trades2.front().bidId, bid.id);
     EXPECT_EQ(trades2.front().quantity, 100);
-    EXPECT_EQ(trades2.front().price.pence, 99);
+    EXPECT_EQ(trades2.front().price.pence, 100);
 }
 
 TEST(MatchingEngineTests, askQuantityGreaterThanBidQuantityPartialOrderFill)
@@ -182,7 +182,7 @@ TEST(MatchingEngineTests, askQuantityGreaterThanBidQuantityPartialOrderFillBidGr
     EXPECT_EQ(trades.front().askId, ask.id);
     EXPECT_EQ(trades.front().bidId, bid.id);
     EXPECT_EQ(trades.front().quantity, 100);
-    EXPECT_EQ(trades.front().price.pence, 100);
+    EXPECT_EQ(trades.front().price.pence, 200);
 }
 
 TEST(MatchingEngineTests, askQuantityGreaterThanBidQuantityFullOrderFillBidGreaterPrice)
@@ -202,12 +202,12 @@ TEST(MatchingEngineTests, askQuantityGreaterThanBidQuantityFullOrderFillBidGreat
     EXPECT_EQ(trades[0].askId, ask.id);
     EXPECT_EQ(trades[0].bidId, bid1.id);
     EXPECT_EQ(trades[0].quantity, 100);
-    EXPECT_EQ(trades[0].price.pence, 100);
+    EXPECT_EQ(trades[0].price.pence, 200);
 
     EXPECT_EQ(trades[1].askId, ask.id);
     EXPECT_EQ(trades[1].bidId, bid2.id);
     EXPECT_EQ(trades[1].quantity, 100);
-    EXPECT_EQ(trades[1].price.pence, 100);
+    EXPECT_EQ(trades[1].price.pence, 200);
 }
 
 TEST(MatchingEngineTests, bidQuantityGreaterThanAskQuantityPartialOrderFillBidGreaterPrice)
@@ -225,7 +225,7 @@ TEST(MatchingEngineTests, bidQuantityGreaterThanAskQuantityPartialOrderFillBidGr
     EXPECT_EQ(trades.front().askId, ask.id);
     EXPECT_EQ(trades.front().bidId, bid.id);
     EXPECT_EQ(trades.front().quantity, 100);
-    EXPECT_EQ(trades.front().price.pence, 100);
+    EXPECT_EQ(trades.front().price.pence, 200);
 }
 
 TEST(MatchingEngineTests, bidQuantityGreaterThanAskQuantityFullOrderFillBidGreaterPrice)

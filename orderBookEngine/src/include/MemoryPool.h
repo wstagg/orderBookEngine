@@ -43,7 +43,6 @@ namespace obe
             auto next = head.next->next;
             auto d = reinterpret_cast<T*>(head.next);
             d = new (d) T(inData);
-            d->~T();
             head.next = next;
             return d;
         }

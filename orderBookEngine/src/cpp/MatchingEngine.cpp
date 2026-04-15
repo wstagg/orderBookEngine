@@ -2,7 +2,7 @@
 
 std::vector<obe::TradeEvent> obe::MatchingEngine::submitOrder(const obe::OrderType &orderType, const obe::Order& order)
 {
-    auto pOrder = memoryPool.allocate(std::move(order));
+    auto pOrder = memoryPool.allocate(order);
 
     // if no more space in the memoryPool return empty vector
     if (!pOrder) return {};
@@ -19,10 +19,10 @@ std::vector<obe::TradeEvent> obe::MatchingEngine::submitOrder(const obe::OrderTy
         break;
     }
 
-    return matchingLoop();
+    return matchingLoop(orderType);
 }
 
-std::vector<obe::TradeEvent> obe::MatchingEngine::matchingLoop()
+std::vector<obe::TradeEvent> obe::MatchingEngine::matchingLoop(const obe::OrderType &aggressorType)
 {
     std::vector<obe::TradeEvent> tradeEvents{};
     
@@ -37,7 +37,7 @@ std::vector<obe::TradeEvent> obe::MatchingEngine::matchingLoop()
             auto bid = bidsList.popBestOrder();
             auto ask = asksList.popBestOrder();
 
-            tradeEvents.emplace_back(bid->id, ask->id, ask->price, ask->quantity);
+            tradeEvents.emplace_back(bid->id, ask->id, aggressorType == OrderType::ask ? bid->price : ask->price  , ask->quantity);
             memoryPool.deallocate(bid);
             memoryPool.deallocate(ask);
         }
@@ -46,7 +46,7 @@ std::vector<obe::TradeEvent> obe::MatchingEngine::matchingLoop()
         {
             auto bid = bidsList.popBestOrder();
 
-            tradeEvents.emplace_back(bid->id, asksList.peekBestOrder()->id, asksList.peekBestOrder()->price, bid->quantity);
+            tradeEvents.emplace_back(bid->id, asksList.peekBestOrder()->id, aggressorType == OrderType::ask ? bid->price : asksList.peekBestOrder()->price, bid->quantity);
             asksList.reduceOrderQuantity(asksList.peekBestOrder()->id, (asksList.peekBestOrder()->quantity - bid->quantity));
             memoryPool.deallocate(bid);
         }
@@ -55,7 +55,7 @@ std::vector<obe::TradeEvent> obe::MatchingEngine::matchingLoop()
         {
             auto ask = asksList.popBestOrder();
             
-            tradeEvents.emplace_back(bidsList.peekBestOrder()->id, ask->id, ask->price, ask->quantity);
+            tradeEvents.emplace_back(bidsList.peekBestOrder()->id, ask->id, aggressorType == OrderType::ask ? bidsList.peekBestOrder()->price : ask->price, ask->quantity);
             bidsList.reduceOrderQuantity(bidsList.peekBestOrder()->id, (bidsList.peekBestOrder()->quantity - ask->quantity));
             memoryPool.deallocate(ask);
         }

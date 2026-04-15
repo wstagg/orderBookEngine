@@ -13,7 +13,7 @@ namespace obe
         std::vector<TradeEvent> submitOrder(const obe::OrderType& orderType, const obe::Order& order);
     private:
         
-        std::vector<obe::TradeEvent> matchingLoop();
+        std::vector<obe::TradeEvent> matchingLoop(const obe::OrderType &aggressorType);
         obe::SortedOrderList<obe::AskComparator> asksList;
         obe::SortedOrderList<obe::BidComparator> bidsList;
         
