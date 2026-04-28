@@ -38,7 +38,7 @@ TEST(OrderTest, createMultipleOrders)
 {
     std::vector<obe::Order> orders;
 
-    for (int i = i; i == 100; ++i)
+    for (int i = 1; i == 100; ++i)
     {
         orders.emplace_back(obe::Price::fromPence(i), i);
         EXPECT_EQ(orders[i].id, i);

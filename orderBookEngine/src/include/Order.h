@@ -25,9 +25,9 @@ namespace obe
         }
         
         Pence pence;
+        Price() = default;
     private:
 
-        Price() = default;
     };
 
     class Order
@@ -37,6 +37,7 @@ namespace obe
         Price price;
         int32_t quantity;
 
+        Order() = default;
         Order(const Price& _price, int32_t _quantity):
         price(_price),
         quantity(_quantity)        
@@ -45,7 +46,6 @@ namespace obe
             id = ++_id;
         }
     private:
-        Order() = default;
         
     }; 
 

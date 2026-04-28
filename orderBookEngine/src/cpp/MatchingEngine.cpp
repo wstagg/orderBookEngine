@@ -38,6 +38,7 @@ std::vector<obe::TradeEvent> obe::MatchingEngine::matchingLoop(const obe::OrderT
             auto ask = asksList.popBestOrder();
 
             tradeEvents.emplace_back(bid->id, ask->id, aggressorType == OrderType::ask ? bid->price : ask->price  , ask->quantity);
+    
             memoryPool.deallocate(bid);
             memoryPool.deallocate(ask);
         }
@@ -47,7 +48,9 @@ std::vector<obe::TradeEvent> obe::MatchingEngine::matchingLoop(const obe::OrderT
             auto bid = bidsList.popBestOrder();
 
             tradeEvents.emplace_back(bid->id, asksList.peekBestOrder()->id, aggressorType == OrderType::ask ? bid->price : asksList.peekBestOrder()->price, bid->quantity);
+
             asksList.reduceOrderQuantity(asksList.peekBestOrder()->id, (asksList.peekBestOrder()->quantity - bid->quantity));
+
             memoryPool.deallocate(bid);
         }
 
@@ -56,7 +59,9 @@ std::vector<obe::TradeEvent> obe::MatchingEngine::matchingLoop(const obe::OrderT
             auto ask = asksList.popBestOrder();
             
             tradeEvents.emplace_back(bidsList.peekBestOrder()->id, ask->id, aggressorType == OrderType::ask ? bidsList.peekBestOrder()->price : ask->price, ask->quantity);
+
             bidsList.reduceOrderQuantity(bidsList.peekBestOrder()->id, (bidsList.peekBestOrder()->quantity - ask->quantity));
+            
             memoryPool.deallocate(ask);
         }
     }   
