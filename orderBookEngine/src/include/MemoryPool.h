@@ -18,7 +18,7 @@ namespace obe
             head.next = data(0);
         }
 
-        [[nodiscard]]T* allocate(T &&inData)  
+        [[nodiscard]]T* allocate(const T&& inData)  
         {
             if (head.next == nullptr)
             {
@@ -28,7 +28,6 @@ namespace obe
             auto next = head.next->next;
             auto d = reinterpret_cast<T*>(head.next);
             d = new (d) T(std::move(inData));
-            d->~T();
             head.next = next;
             return d;
         }
